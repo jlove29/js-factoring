@@ -438,6 +438,8 @@ class Or extends Component {
 }
 
 
+
+/* FACTORING code */
 function getORreqs(p, s) {
     //console.log("OR", p);
     if (p == current) return [true, null];
@@ -656,21 +658,24 @@ function start (id,r,rs,sc,pc) {
     console.log("Propnet built.");
 
     /* Find nodes for factoring */
+
+    /* Check base propositions */
     if (!propnet.bases) return 'ready';
     for (var b of propnet.bases) {
-        //console.log("starting", b);
         if (b.inputs.size == 0) continue;
         state = [JSON.parse(b.name)];
         markbases(state, propnet);
         current = b;
         first = true;
         var guess = getBASEreqs(b, state);
-        //console.log(b.name, guess);
+        console.log(b.name, guess);
         if (guess[0] && (!guess[1])) { // candidate for factoring!
             console.log(b.name, true);
         }
         else { console.log(b.name, false) }
     }
+
+    /* Check view propositions */
     for (var v of propnet.views) {
         if (v.inputs.size == 0) continue;
         name = JSON.parse(v.name);
@@ -686,8 +691,9 @@ function start (id,r,rs,sc,pc) {
         }
         else { console.log(v.name, false) }
     }
-    propnet.clear();
 
+    /* Get ready to play */
+    propnet.clear();
     markbases(gamestate, propnet);
     return 'ready';
 }
