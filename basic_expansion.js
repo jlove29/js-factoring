@@ -23,6 +23,60 @@ var reqs = new Set();
 function info () {return 'ready'}
 
 
+function res(p, q) {
+    if (p[0] == 'not' && q[0] == 'not') return false;
+    if (p[0] != 'not' && q[0] != 'not') return false;
+    if (p[0] == 'not') return (JSON.stringify(p[1]) == JSON.stringify(q))
+    return (JSON.stringify(p) == JSON.stringify(q[1]));
+}
+
+
+function calcdif(c1, c2, r, p) {
+    if (r[0] == 'not') r = r[1];
+    r = JSON.stringify(r);
+    var result = new Set();
+    for (var conjunct of c1) {
+        if (conjunct[0] == 'not' && JSON.stringify(conjunct[1]) != r) result.add(conjunct);
+        if (conjunct[0] != 'not' && JSON.stringify(conjunct) != r) result.add(conjunct);
+    }
+    for (var conjunct of c2) {
+        if (conjunct[0] == 'not' && JSON.stringify(conjunct[1]) != r) result.add(conjunct);
+        if (conjunct[0] != 'not' && JSON.stringify(conjunct) != r) result.add(conjunct);
+    }
+    if (result.size > 1) return result;
+    for (var item of result) {
+        if (item[1] == p) return true;
+        if (item[0] == 'not' && item[1][1] == p) return false;
+    }
+    return result;
+}
+
+
+function resolve(R, p) {
+    var newR = [];
+    for (var i = 0; i < R.length; i++) {
+        var clause1 = R[i];
+        for (var r1 of clause1) {
+            for (var j = 0; j < i; j++) {
+                var clause2 = R[j];
+                for (var r2 of clause2) {
+                    var resolvable = res(r1, r2);
+                    if (resolvable) newR.push(calcdif(clause1, clause2, r1, p));
+                }
+            }
+            for (var j = i+1; j < R.length; j++) {
+                var clause2 = R[j];
+                for (var r2 of clause2) {
+                    var resolvable = res(r1, r2);
+                    if (resolvable) newR.push(calcdif(clause1, clause2, r1, p));
+                }
+            }
+        }
+    }
+}
+
+
+
 function expand(p, lib) {
     var nexts = lib['next'];
     var toadd = [];
@@ -50,25 +104,64 @@ function expand(p, lib) {
         lib.push(frule);
         lib['next'].push(frule);
         /* not necessary, but cleaner this way - remove unexpanded rule */
-        // TODO: this isn't working
         for (var i = 0; i < lib.length; i++) {
             if (JSON.stringify(lib[i]) == JSON.stringify(rule)) {
                 lib.splice(i, 1);
                 i--;
             }
         }
+        for (var j = 0; j < lib['next'].length; j++) {
+            if (JSON.stringify(lib['next'][j]) == JSON.stringify(rule)) {
+                lib['next'].splice(j, 1);
+                j--;
+            }
+        }
     }
     return lib;
+}
+
+function getActions(A) {
+    var actions = new Set();
+    for (var a of A) actions.add(a[2]);
+    return actions;
+}
+
+function generateClauses(A) {
+    var actions = new Set();
+    for (var a of A) actions.add(['not', a]);
+    return actions;
 }
 
 
 function check(A, p) {
     var rules = expand(p, library);
-    var R = []
+    var Aset = getActions(A);
+    var R = [];
     for (rule of rules['next']) {
         if (rule[1][1] != p) continue;
-        console.log(rule);
+        Ri = new Set();
+        var nextR = false;
+        for (var j = 1; j < rule.length; j++) {
+            var conjunct = rule[j];
+            if (conjunct[0] == 'true' && conjunct[1] == p) Ri.add(conjunct);
+            else if (conjunct[0] == 'not' && conjunct[1][1] == p) {
+                nextR = true;
+                break;
+            }
+            else if (conjunct[0] == 'true' || conjunct[0] == 'not') Ri.add(conjunct);
+            else if (conjunct[0] == 'does') {
+                if (Aset.has(conjunct[2])) Ri.add(conjunct);
+                else {
+                    nextR = true;
+                    break;
+                }
+            }
+        }
+        if (!nextR) R.push(Ri);
     }
+    Ai = generateClauses(A);
+    R.push(Ai);
+    return resolve(R, p);
 }
 
 
