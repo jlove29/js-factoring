@@ -36,12 +36,14 @@ function calcdif(c1, c2, r, p) {
     r = JSON.stringify(r);
     var result = new Set();
     for (var conjunct of c1) {
-        if (conjunct[0] == 'not' && JSON.stringify(conjunct[1]) != r) result.add(conjunct);
-        if (conjunct[0] != 'not' && JSON.stringify(conjunct) != r) result.add(conjunct);
+        conjunct = JSON.parse(conjunct);
+        if (conjunct[0] == 'not' && JSON.stringify(conjunct[1]) != r) result.add(JSON.stringify(conjunct));
+        if (conjunct[0] != 'not' && JSON.stringify(conjunct) != r) result.add(JSON.stringify(conjunct));
     }
     for (var conjunct of c2) {
-        if (conjunct[0] == 'not' && JSON.stringify(conjunct[1]) != r) result.add(conjunct);
-        if (conjunct[0] != 'not' && JSON.stringify(conjunct) != r) result.add(conjunct);
+        conjunct = JSON.parse(conjunct);
+        if (conjunct[0] == 'not' && JSON.stringify(conjunct[1]) != r) result.add(JSON.stringify(conjunct));
+        if (conjunct[0] != 'not' && JSON.stringify(conjunct) != r) result.add(JSON.stringify(conjunct));
     }
     if (result.size > 1) return result;
     for (var item of result) {
@@ -51,15 +53,23 @@ function calcdif(c1, c2, r, p) {
     return result;
 }
 
+function setequiv(A, B) {
+    if (A.size !== B.size) return false;
+    for (var a of A) if (!B.has(a)) return false;
+    return true;
+}
+
 
 function resolve(R, p) {
     var newR = [];
     for (var i = 0; i < R.length; i++) {
         var clause1 = R[i];
         for (var r1 of clause1) {
+            r1 = JSON.parse(r1);
             for (var j = 0; j < i; j++) {
                 var clause2 = R[j];
                 for (var r2 of clause2) {
+                    r2 = JSON.parse(r2);
                     var resolvable = res(r1, r2);
                     if (resolvable) newR.push(calcdif(clause1, clause2, r1, p));
                 }
@@ -67,12 +77,30 @@ function resolve(R, p) {
             for (var j = i+1; j < R.length; j++) {
                 var clause2 = R[j];
                 for (var r2 of clause2) {
+                    r2 = JSON.parse(r2);
                     var resolvable = res(r1, r2);
                     if (resolvable) newR.push(calcdif(clause1, clause2, r1, p));
                 }
             }
         }
     }
+    newR = removeDuplicates(newR);
+    for (var l of newR) {
+        for (var m of l) {
+            if (m == JSON.stringify(['true', p])) return true;
+        }
+    }
+    for (var k of R) newR.push(k);
+    if (newR.length == 5) resolve(newR, p);
+}
+
+function removeDuplicates(arr) {
+    for (var i = 0; i < arr.length; i++) {
+        for (var j = i+1; j < arr.length; j++) {
+            if (setequiv(arr[i], arr[j])) arr.splice(j, 1);
+        }
+    }
+    return arr;
 }
 
 
@@ -128,7 +156,7 @@ function getActions(A) {
 
 function generateClauses(A) {
     var actions = new Set();
-    for (var a of A) actions.add(['not', a]);
+    for (var a of A) actions.add(JSON.stringify(['not', a]));
     return actions;
 }
 
@@ -143,14 +171,14 @@ function check(A, p) {
         var nextR = false;
         for (var j = 1; j < rule.length; j++) {
             var conjunct = rule[j];
-            if (conjunct[0] == 'true' && conjunct[1] == p) Ri.add(conjunct);
+            if (conjunct[0] == 'true' && conjunct[1] == p) Ri.add(JSON.stringify(conjunct));
             else if (conjunct[0] == 'not' && conjunct[1][1] == p) {
                 nextR = true;
                 break;
             }
-            else if (conjunct[0] == 'true' || conjunct[0] == 'not') Ri.add(conjunct);
+            else if (conjunct[0] == 'true' || conjunct[0] == 'not') Ri.add(JSON.stringify(conjunct));
             else if (conjunct[0] == 'does') {
-                if (Aset.has(conjunct[2])) Ri.add(conjunct);
+                if (Aset.has(conjunct[2])) Ri.add(JSON.stringify(conjunct));
                 else {
                     nextR = true;
                     break;
@@ -189,7 +217,8 @@ function start (id,r,rs,sc,pc) {
 
     A = new Set([ [ 'does', 'r', 'i' ], [ 'does', 'r', 'j' ] ]);
     p = 'a';
-    check(A, p);
+    var result = check(A, p);
+    console.log(result);
 
     return 'ready';
 }
