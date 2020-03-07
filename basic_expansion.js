@@ -86,12 +86,15 @@ function resolve(R, p) {
     }
     newR = removeDuplicates(newR);
     for (var l of newR) {
+        if (l.size > 1) continue;
         for (var m of l) {
             if (m == JSON.stringify(['true', p])) return true;
         }
     }
     for (var k of R) newR.push(k);
-    if (newR.length == 5) resolve(newR, p);
+    // TODO: Fix stop condition
+    if (newR.length < 10) return resolve(newR, p);
+    return false;
 }
 
 function removeDuplicates(arr) {
@@ -207,7 +210,6 @@ function start (id,r,rs,sc,pc) {
       [ 'legal', 'r', 'j' ],
       [ 'rule', [ 'next', 'a' ], [ 'does', 'r', 'i' ] ],
       [ 'rule', [ 'next', 'a' ], [ 'does', 'r', 'j' ], [ 'true', 'a' ] ],
-      [ 'rule', [ 'next', 'b' ], [ 'does', 'r', 'i' ], [ 'true', 'b' ] ],
       [ 'rule', [ 'next', 'b' ], [ 'does', 'r', 'i' ], [ 'true', 'b' ] ],
       [ 'rule', [ 'next', 'b' ], [ 'does', 'r', 'j' ], [ 'not', [ 'true', 'b' ] ] ]
     ];
