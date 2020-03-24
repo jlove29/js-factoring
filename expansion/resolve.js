@@ -22,8 +22,15 @@ function contains(A, b) {
     return false;
 }
 
+function stopCond(S) {
+    for (var s of S) {
+        if (s.size == 1 && s.has('a')) return true;
+    }
+    return false;
+}
 
-function resolve(A, B) {
+
+function resolve2(A, B) {
     if (B.size == 0) return A;
     var oldClauses = new Set([A, B]);
     var newClauses = new Set();
@@ -37,11 +44,55 @@ function resolve(A, B) {
             }
         }
     }
-    return [oldClauses, newClauses];
+    return newClauses;
+}
+
+function resolvePairs(S) {
+    var newClauses = new Set();
+    for (var i = 0; i < S.length; i++) {
+        for (var j = i+1; j < S.length; j++) {
+            var newSet = resolve2(S[i], S[j]);
+            for (var s of newSet) {
+                newClauses.add(s);
+            }
+        }
+    }
+    newClauses = [...newClauses];
+    return newClauses;
+}
+
+function resolveOldNew(A, B) {
+    var newClauses = new Set();
+    for (var a of A) {
+        for (var b of B) {
+            var newSet = resolve2(a, b);
+            for (var s of newSet) {
+                if (!contains(A, s)) newClauses.add(s);
+            }
+        }
+    }
+    newClauses = [...newClauses];
+    return newClauses;
 }
 
 
-var A = new Set([ 'a', 'b' ]);
-var B = new Set([ 'xa' ]);
 
-resolve(A, B);
+function resolve(S) {
+    var newClauses = resolvePairs(S);
+    var oldClauses = S;
+    while (true) {
+        oldClauses = [...new Set([...oldClauses, ...newClauses])];
+        newClauses = resolveOldNew(newClauses, oldClauses);
+        if (stopCond(newClauses)) return true;
+        if (newClauses.length == 0) return false;
+    }
+}
+
+var A = new Set([ 'a', 'b', 'c' ]);
+var B = new Set([ 'xa', 'xb' ]);
+var C = new Set([ 'xc' ]);
+var origClauses = [A, B, C];
+
+var result = resolve(origClauses);
+console.log(result);
+
