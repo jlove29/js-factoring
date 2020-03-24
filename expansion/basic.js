@@ -47,45 +47,35 @@ function negActions(A) {
 function run(rs, p, A) {
     var R = [];
     var rules = getrules(rs, p);
-    //console.log(rules);
     for (var rule of rules) {
-        //console.log("rule", rule);
         var Rp = new Set();
         var toContinue = false;
         for (var c of rule) {
-            //console.log("c", c);
             if (c == p) Rp.add(c);          // c = (true p)
             else if (utils.complement(c, p)) {   // c = (not true p)
                 toContinue = true;
                 break;
             }
             else if (istype(c, 'base')) {        // c = (true q)
-                //console.log('fail 2', c);
                 toContinue = true;
                 break;
             }
             else if (istype(c, 'action')) {      // c = (does i)
                 if (A.has(c)) Rp.add(c);
                 else {
-                    //console.log('fail 3', c);
                     toContinue = true;
                     break;
                 }
             }
         }
-        //console.log("RP", Rp);
         if (toContinue) continue;
-        //console.log("RP after", Rp);
         R.push(Rp);
     }
-    //console.log(R);
     var Ap = negActions(A);
     R.push(Ap);
-    //console.log(R);
     var result = resolve.resolve(R, p);
     return result;
 }
-
 
 
 var rs = [
@@ -95,7 +85,16 @@ var rs = [
       [ 'b', ['j', 'xb'] ]      // (next b) :- (does j) (not true b)
     ];
 
+/* Example where p is inertial under A */
+/*
 var p = 'a';
 var A = new Set(['i', 'j']);
+*/
+
+/* Example where p is not inertial under A */
+var p = 'b';
+var A = new Set(['i', 'j']);
+
+
 var result = run(rs, p, A);
-//console.log(result);
+console.log(result);

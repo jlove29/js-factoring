@@ -19,7 +19,7 @@ function contains(A, b) {
 
 function stopCond(S, p) {
     for (var s of S) {
-        if (s.size == 1 && s.has('p')) return true;
+        if (s.size == 1 && s.has(p)) return true;
     }
     return false;
 }
@@ -73,17 +73,20 @@ function resolveOldNew(A, B) {
 
 
 function resolve(S, p) {
-    var A1 = resolvePairs(S);
-    if (stopCond(A1, p)) return true;
-    var O = S;
-    var A2 = resolveOldNew(O, A1);
-    var O1 = [...new Set([...O, A1])];
+    var O = utils.ldc(S);
+    var pA = resolvePairs(O);
     while (true) {
-        if (stopCond(A2, p)) return true;
-        if (A2.length == 0) return false;
-        A3 = resolveOldNew(O1, A2);
-        O2 = [...new Set([...O1, ...A2])];
-        return;
+        /*console.log(O);
+        console.log(pA);
+        console.log("---");*/
+        if (stopCond(pA, p)) return true;
+        if (pA.length == 0) return false;
+        var A = resolveOldNew(O, pA);
+        var pO = utils.ldc(O);
+        O = new Set(pO);
+        for (var e of pA) O.add(e);
+        O = [...O];
+        var pA = A;
     }
 }
 
@@ -96,12 +99,13 @@ var A = new Set([ 'a', 'b', 'c' ]);
 var B = new Set([ 'xa', 'xb' ]);
 var C = new Set([ 'xc' ]);
 var origClauses = [A, B, C];
-*/
 
 var A = new Set([ 'a', 'b' ]);
 var B = new Set([ 'xa', 'xb' ]);
 var origClauses = [A, B];
+var p = 'a';
 
-var result = resolve(origClauses);
+var result = resolve(origClauses, p);
 console.log(result);
 
+*/
