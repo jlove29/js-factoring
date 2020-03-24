@@ -1,9 +1,4 @@
-
-function complement(a, b) {
-    if (a.indexOf(b) == 1) return true;
-    if (b.indexOf(a) == 1) return true;
-    return false;
-}
+var utils = require('./utils.js')
 
 function equal(A, B) {
     for (var a of A) {
@@ -22,9 +17,9 @@ function contains(A, b) {
     return false;
 }
 
-function stopCond(S) {
+function stopCond(S, p) {
     for (var s of S) {
-        if (s.size == 1 && s.has('a')) return true;
+        if (s.size == 1 && s.has('p')) return true;
     }
     return false;
 }
@@ -36,7 +31,7 @@ function resolve2(A, B) {
     var newClauses = new Set();
     for (var a of A) {
         for (var b of B) {
-            if (complement(a, b)) {
+            if (utils.complement(a, b)) {
                 var newSet = new Set([...A, ...B]);
                 newSet.delete(a);
                 newSet.delete(b);
@@ -77,21 +72,35 @@ function resolveOldNew(A, B) {
 
 
 
-function resolve(S) {
-    var newClauses = resolvePairs(S);
-    var oldClauses = S;
+function resolve(S, p) {
+    var A1 = resolvePairs(S);
+    if (stopCond(A1, p)) return true;
+    var O = S;
+    var A2 = resolveOldNew(O, A1);
+    var O1 = [...new Set([...O, A1])];
     while (true) {
-        oldClauses = [...new Set([...oldClauses, ...newClauses])];
-        newClauses = resolveOldNew(newClauses, oldClauses);
-        if (stopCond(newClauses)) return true;
-        if (newClauses.length == 0) return false;
+        if (stopCond(A2, p)) return true;
+        if (A2.length == 0) return false;
+        A3 = resolveOldNew(O1, A2);
+        O2 = [...new Set([...O1, ...A2])];
+        return;
     }
 }
 
+module.exports = {
+    resolve: resolve
+};
+
+/*
 var A = new Set([ 'a', 'b', 'c' ]);
 var B = new Set([ 'xa', 'xb' ]);
 var C = new Set([ 'xc' ]);
 var origClauses = [A, B, C];
+*/
+
+var A = new Set([ 'a', 'b' ]);
+var B = new Set([ 'xa', 'xb' ]);
+var origClauses = [A, B];
 
 var result = resolve(origClauses);
 console.log(result);
