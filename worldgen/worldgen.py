@@ -64,7 +64,7 @@ def calclatches(state, A, n):
 
 
 
-def main(n, m):
+def main(n, m, write=True):
     # n = number of propositions
     # m = number of actions
 
@@ -81,16 +81,21 @@ def main(n, m):
 
     # convert to rules
     rules = generaterules(paramvals, n, m)
-    with open('rules.csv', 'a') as outfile:
-        writer = csv.writer(outfile)
-        for p in rules:
-            latch = 0
-            if p in latches:
-                latch = 1
-            writer.writerow([rules[p], A, latch])
+    if write == True:
+        with open('rules.csv', 'a') as outfile:
+            writer = csv.writer(outfile)
+            for p in rules:
+                latch = 0
+                if p in latches:
+                    latch = 1
+                writer.writerow([rules[p], A, latch])
 
 
-for n in range(2, 5):
-    for m in range(1, 4):
+'''
+for n in range(2, 3):
+    for m in range(1, 2):
         for i in range(10):
             main(n, m)
+'''
+
+main(2, 1, write=False)

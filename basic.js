@@ -1,5 +1,6 @@
 require('./utils.js')();
 require('./resolve.js')();
+const fs = require('fs');
 var rbases = new Set(['a', 'b', 'c', 'd', 'e']);
 var bases = new Set([...rbases]);
 for (var b of rbases) bases.add('x' + b);
@@ -57,8 +58,11 @@ function run(rs, p, A) {
                 break;
             }
             else if (istype(c, 'base')) {        // c = (true q)
+                /*
                 toContinue = true;
                 break;
+                */
+                Rp.add(c);
             }
             else if (istype(c, 'action')) {      // c = (does i)
                 if (A.has(c)) Rp.add(c);
@@ -78,14 +82,12 @@ function run(rs, p, A) {
 }
 
 
-/*
 var rs = [
       [ 'a', ['i'] ],           // (next a) :- (does i)
       [ 'a', ['j', 'a'] ],      // (next a) :- (does j) (true a)
       [ 'b', ['i', 'b'] ],      // (next b) :- (does i) (true b)
       [ 'b', ['j', 'xb'] ]      // (next b) :- (does j) (not true b)
     ];
-*/
 
 /* Example where p is inertial under A */
 /*
@@ -97,18 +99,25 @@ var A = new Set(['i', 'j']);
 /*
 var p = 'b';
 var A = new Set(['i', 'j']);
+*/
 
+/*
 var result = run(rs, p, A);
 console.log(result);
 */
 
 
 
-
 // get rules
 var rs = process.argv[2];
-rs = parserules(rs);
-var p = rs[0][0];
+var p;
+if (rs.length > 2) {
+    rs = parserules(rs);
+    p = rs[0][0];
+} else {
+    rs = [];
+    p = 'a';
+};
 
 // get A
 var A = process.argv[3];
@@ -121,7 +130,9 @@ result = (result == false) ? '0' : '1';
 // true value
 var islatch = process.argv[4];
 
-console.log(result == islatch);
+// do they match
+var match = (islatch == result) ? '1\n' : '0\n';
 
+fs.appendFile('out.txt', match, (err) => {});
 
 

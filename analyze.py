@@ -12,6 +12,6 @@ with open('worldgen/rules.csv', 'r') as incsv:
 with open('mismatches.csv', 'a') as outcsv:
     writer = csv.writer(outcsv)
     for i in range(len(lines)):
-        if lines[i][:-1] == 'false':
+        if lines[i][:-1] == '0':
             writer.writerow(worlds[i])
 
