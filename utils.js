@@ -20,7 +20,7 @@ function losdc(o) { // deep copy list of sets
     return newlist;
 }
 
-function parselist(l) {
+function parserules(l) {
     var newlist = [];
     l = l.slice(1,-1);
     l = l.split('], [');
@@ -39,10 +39,19 @@ function parselist(l) {
     return newlist;
 }
 
+function parseactions(l, a) {
+    var A = new Set();
+    l = l.slice(1,-1);
+    l = l.split(', ');
+    for (var r of l) A.add(a[parseInt(r)]);
+    return A;
+}
+
 
 module.exports = function() {
     this.complement = complement;
     this.dc = dc;
     this.ldc = losdc;
-    this.parselist = parselist;
+    this.parserules = parserules;
+    this.parseactions = parseactions;
 };

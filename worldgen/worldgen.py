@@ -90,7 +90,7 @@ def main(n, m):
             writer.writerow([rules[p], A, latch])
 
 
-for n in range(1, 5):
+for n in range(2, 5):
     for m in range(1, 4):
         for i in range(10):
             main(n, m)

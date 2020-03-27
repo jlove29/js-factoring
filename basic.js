@@ -102,11 +102,26 @@ var result = run(rs, p, A);
 console.log(result);
 */
 
+
+
+
+// get rules
 var rs = process.argv[2];
-rs = parselist(rs);
-
-var islatch = process.argv[3];
-
+rs = parserules(rs);
 var p = rs[0][0];
+
+// get A
+var A = process.argv[3];
+A = parseactions(A, [...ractions]);
+
+// is it a latch?
+var result = run(rs, p, A);
+result = (result == false) ? '0' : '1';
+
+// true value
+var islatch = process.argv[4];
+
+console.log(result == islatch);
+
 
 

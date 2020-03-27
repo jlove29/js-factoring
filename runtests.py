@@ -7,9 +7,8 @@ def main():
         reader = csv.reader(infile)
         for row in reader:
             rules = row[0]
-            islatch = row[1]
-            actions = row[2]
-            call(['node', 'basic.js', rules, islatch])
-            return
+            actions = row[1]
+            islatch = row[2]
+            call(['node', 'basic.js', rules, actions, islatch])
 
 main()
