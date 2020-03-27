@@ -1,5 +1,5 @@
-var utils = require('./utils.js');
-var resolve = require('./resolve.js');
+require('./utils.js')();
+require('./resolve.js')();
 var rbases = new Set(['a', 'b', 'c', 'd', 'e']);
 var bases = new Set([...rbases]);
 for (var b of rbases) bases.add('x' + b);
@@ -14,10 +14,10 @@ function getrules(R, p) {
         if (rs[i][0] == p) {
             if (rs[i][1].includes(p)) rules.add(new Set(rs[i][1]));
             else {
-                var newRuleA = utils.dc(rs[i][1]);
+                var newRuleA = dc(rs[i][1]);
                 newRuleA.push(p);
                 rules.add(new Set(newRuleA));
-                var newRuleB = utils.dc(rs[i][1]);
+                var newRuleB = dc(rs[i][1]);
                 newRuleB.push('x' + p);
                 rules.add(new Set(newRuleB));
             }
@@ -52,7 +52,7 @@ function run(rs, p, A) {
         var toContinue = false;
         for (var c of rule) {
             if (c == p) Rp.add(c);          // c = (true p)
-            else if (utils.complement(c, p)) {   // c = (not true p)
+            else if (complement(c, p)) {   // c = (not true p)
                 toContinue = true;
                 break;
             }
@@ -73,17 +73,19 @@ function run(rs, p, A) {
     }
     var Ap = negActions(A);
     R.push(Ap);
-    var result = resolve.resolve(R, p);
+    var result = resolve(R, p);
     return result;
 }
 
 
+/*
 var rs = [
       [ 'a', ['i'] ],           // (next a) :- (does i)
       [ 'a', ['j', 'a'] ],      // (next a) :- (does j) (true a)
       [ 'b', ['i', 'b'] ],      // (next b) :- (does i) (true b)
       [ 'b', ['j', 'xb'] ]      // (next b) :- (does j) (not true b)
     ];
+*/
 
 /* Example where p is inertial under A */
 /*
@@ -92,9 +94,19 @@ var A = new Set(['i', 'j']);
 */
 
 /* Example where p is not inertial under A */
+/*
 var p = 'b';
 var A = new Set(['i', 'j']);
 
-
 var result = run(rs, p, A);
 console.log(result);
+*/
+
+var rs = process.argv[2];
+rs = parselist(rs);
+
+var islatch = process.argv[3];
+
+var p = rs[0][0];
+
+

@@ -20,8 +20,29 @@ function losdc(o) { // deep copy list of sets
     return newlist;
 }
 
-module.exports = {
-    complement: complement,
-    dc: dc,
-    ldc: losdc
+function parselist(l) {
+    var newlist = [];
+    l = l.slice(1,-1);
+    l = l.split('], [');
+    l[0] = l[0].slice(1);
+    l[l.length-1] = l[l.length-1].slice(0,-1);
+    for (var r of l) {
+        var rule = r.split(', [');
+        var prop = rule[0].slice(1,-1);
+        rule = rule[1].slice(0,-1);
+        rule = rule.replace(/\'/g, "");
+        var reqs = rule.split(', ');
+        var next = [prop];
+        next.push(reqs);
+        newlist.push(next);
+    }
+    return newlist;
+}
+
+
+module.exports = function() {
+    this.complement = complement;
+    this.dc = dc;
+    this.ldc = losdc;
+    this.parselist = parselist;
 };

@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import csv
 import utils
 
@@ -38,24 +39,22 @@ def generaterules(state, n, m):
         allrules[p] = rules
     return allrules
 
-def annotate(state, m):
+def annotate(state):
     nstates = state.shape[0]
-    ncombos = 2**m
-    acts = np.random.randint(ncombos, size=nstates)
-    acts = acts.reshape((nstates, 1))
-    annotated = np.append(state, acts, axis=1)
     vals = np.random.randint(2, size=nstates)
     vals = vals.reshape((nstates, 1))
-    annotated = np.append(annotated, vals, axis=1)
+    annotated = np.append(state, vals, axis=1)
     return annotated
 
 
 
-def calclatches(state, n):
+def calclatches(state, A, n):
+    legals = np.apply_along_axis(utils.islegal, axis=1, arr=state, a=A)
+    legals = state[legals,:]
     latches = []
     for p in range(n):
-        istrue = np.apply_along_axis(utils.isptrue, axis=1, arr=state, p=p, n=n)
-        relevant = state[istrue,:]
+        istrue = np.apply_along_axis(utils.isptrue, axis=1, arr=legals, p=p, n=n)
+        relevant = legals[istrue,:]
         numprops = relevant.shape[0]
         stilltrue = np.apply_along_axis(utils.is1, axis=1, arr=relevant)
         count = np.count_nonzero(stilltrue)
@@ -63,27 +62,22 @@ def calclatches(state, n):
             latches.append(p)
     return latches
 
-    
-
-
-def getlatches(state, n, m):
-    props_list = utils.getprops(n)
-    actions_list = utils.getactions(m)
-    latches = np.apply_along_axis(calclatch, axis=1, arr=state, n=n, m=m)
 
 
 def main(n, m):
     # n = number of propositions
     # m = number of actions
 
-    # generate world state (m*2^n)
+    # generate world state (param vals, action taken)
     worldstate = getworld(n, m)
 
     # annotate action combos
-    paramvals = annotate(worldstate, m)
+    paramvals = annotate(worldstate)
+    k = random.randint(1, m)
+    A = random.sample(range(m), k)
 
     # calculate latch
-    latches = calclatches(paramvals, n)
+    latches = calclatches(paramvals, A, n)
 
     # convert to rules
     rules = generaterules(paramvals, n, m)
@@ -93,7 +87,7 @@ def main(n, m):
             latch = 0
             if p in latches:
                 latch = 1
-            writer.writerow([rules[p], latch])
+            writer.writerow([rules[p], A, latch])
 
 
 for n in range(1, 5):

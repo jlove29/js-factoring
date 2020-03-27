@@ -1,4 +1,4 @@
-var utils = require('./utils.js')
+require('./utils.js')();
 
 function equal(A, B) {
     for (var a of A) {
@@ -31,7 +31,7 @@ function resolve2(A, B) {
     var newClauses = new Set();
     for (var a of A) {
         for (var b of B) {
-            if (utils.complement(a, b)) {
+            if (complement(a, b)) {
                 var newSet = new Set([...A, ...B]);
                 newSet.delete(a);
                 newSet.delete(b);
@@ -73,7 +73,7 @@ function resolveOldNew(A, B) {
 
 
 function resolve(S, p) {
-    var O = utils.ldc(S);
+    var O = ldc(S);
     var pA = resolvePairs(O);
     while (true) {
         /*console.log(O);
@@ -82,7 +82,7 @@ function resolve(S, p) {
         if (stopCond(pA, p)) return true;
         if (pA.length == 0) return false;
         var A = resolveOldNew(O, pA);
-        var pO = utils.ldc(O);
+        var pO = ldc(O);
         O = new Set(pO);
         for (var e of pA) O.add(e);
         O = [...O];
@@ -90,8 +90,8 @@ function resolve(S, p) {
     }
 }
 
-module.exports = {
-    resolve: resolve
+module.exports = function() {
+    this.resolve = resolve;
 };
 
 /*

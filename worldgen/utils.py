@@ -17,3 +17,6 @@ def isptrue(code, p, n):
 
 def is1(val):
     return (val[-1] == 1)
+
+def islegal(row, a):
+    return (row[1] in a)
