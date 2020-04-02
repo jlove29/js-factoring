@@ -91,11 +91,9 @@ def main(n, m, write=True):
                 writer.writerow([rules[p], A, latch])
 
 
-'''
-for n in range(2, 3):
-    for m in range(1, 2):
+for n in range(2, 4):
+    for m in range(1, 3):
         for i in range(10):
             main(n, m)
-'''
 
-main(2, 1, write=False)
+#main(2, 1, write=False)

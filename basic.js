@@ -82,12 +82,14 @@ function run(rs, p, A) {
 }
 
 
+/*
 var rs = [
       [ 'a', ['i'] ],           // (next a) :- (does i)
       [ 'a', ['j', 'a'] ],      // (next a) :- (does j) (true a)
       [ 'b', ['i', 'b'] ],      // (next b) :- (does i) (true b)
       [ 'b', ['j', 'xb'] ]      // (next b) :- (does j) (not true b)
     ];
+*/
 
 /* Example where p is inertial under A */
 /*
@@ -100,6 +102,18 @@ var A = new Set(['i', 'j']);
 var p = 'b';
 var A = new Set(['i', 'j']);
 */
+
+/* Test example */
+/*
+var rs = [
+    [ 'a', [ 'a', 'xb', 'xc', 'i' ] ],
+    [ 'a', [ 'a', 'xb', 'c', 'i' ] ],
+    [ 'a', [ 'a', 'b', 'xc', 'i' ] ]
+];
+var p = 'a';
+var A = new Set(['i']);
+*/
+
 
 /*
 var result = run(rs, p, A);

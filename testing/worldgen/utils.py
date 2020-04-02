@@ -13,7 +13,7 @@ def getpropstate(i, n):
 
 def isptrue(code, p, n):
     propstate = getpropstate(code[0], n)
-    return (propstate[p-1] == '1')
+    return (propstate[p] == '1')
 
 def is1(val):
     return (val[-1] == 1)

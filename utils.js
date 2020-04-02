@@ -20,6 +20,23 @@ function losdc(o) { // deep copy list of sets
     return newlist;
 }
 
+function equal(A, B) {
+    for (var a of A) {
+        if (!B.has(a)) return false;
+    }
+    for (var b of B) {
+        if (!A.has(b)) return false;
+    }
+    return true;
+}
+
+function contains(A, b) {
+    for (var a of A) {
+        if (equal(a, b)) return true;
+    }
+    return false;
+}
+
 function parserules(l) {
     var newlist = [];
     l = l.slice(1,-1);
@@ -52,6 +69,7 @@ module.exports = function() {
     this.complement = complement;
     this.dc = dc;
     this.ldc = losdc;
+    this.contains = contains;
     this.parserules = parserules;
     this.parseactions = parseactions;
 };

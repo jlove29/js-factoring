@@ -1,22 +1,5 @@
 require('./utils.js')();
 
-function equal(A, B) {
-    for (var a of A) {
-        if (!B.has(a)) return false;
-    }
-    for (var b of B) {
-        if (!A.has(b)) return false;
-    }
-    return true;
-}
-
-function contains(A, b) {
-    for (var a of A) {
-        if (equal(a, b)) return true;
-    }
-    return false;
-}
-
 function stopCond(S, p) {
     for (var s of S) {
         if (s.size == 1 && s.has(p)) return true;
@@ -32,9 +15,11 @@ function resolve2(A, B) {
     for (var a of A) {
         for (var b of B) {
             if (complement(a, b)) {
-                var newSet = new Set([...A, ...B]);
-                newSet.delete(a);
-                newSet.delete(b);
+                var newA = new Set([...A]);
+                newA.delete(a);
+                var newB = new Set([...B]);
+                newB.delete(b);
+                var newSet = new Set([...newA, ...newB]);
                 if (newSet.size > 0 && !contains(oldClauses, newSet)) newClauses.add(newSet);
             }
         }
@@ -62,7 +47,9 @@ function resolveOldNew(A, B) {
         for (var b of B) {
             var newSet = resolve2(a, b);
             for (var s of newSet) {
-                if (!contains(A, s)) newClauses.add(s);
+                if (!contains(newClauses, s)) {
+                    if (!contains(A, s)) newClauses.add(s);
+                }
             }
         }
     }
@@ -75,16 +62,21 @@ function resolveOldNew(A, B) {
 function resolve(S, p) {
     var O = ldc(S);
     var pA = resolvePairs(O);
+    //console.log(pA);
     while (true) {
-        /*console.log(O);
-        console.log(pA);
-        console.log("---");*/
+        /*
+        console.log("O", O);
+        console.log("P", pA);
+        console.log("---");
+        */
         if (stopCond(pA, p)) return true;
         if (pA.length == 0) return false;
         var A = resolveOldNew(O, pA);
         var pO = ldc(O);
         O = new Set(pO);
-        for (var e of pA) O.add(e);
+        for (var e of pA) {
+            if (!contains(O, e)) O.add(e);
+        }
         O = [...O];
         var pA = A;
     }
@@ -104,8 +96,22 @@ var A = new Set([ 'a', 'b' ]);
 var B = new Set([ 'xa', 'xb' ]);
 var origClauses = [A, B];
 var p = 'a';
+*/
+
+/*
+var origClauses = [
+    new Set ([ 'a', 'xb', 'xc', 'i' ]),
+    new Set ([ 'a', 'xb', 'c', 'i' ]),
+    new Set ([ 'a', 'b', 'xc', 'i' ]),
+    new Set ([ 'xi' ])
+];
+*/
+var origClauses = [
+    new Set ([ 'a', 'xb', 'c', 'i' ]),
+    new Set ([ 'a', 'xb', 'i', 'b' ])
+];
+var p = 'a';
 
 var result = resolve(origClauses, p);
 console.log(result);
 
-*/

@@ -13,7 +13,7 @@ def main():
         except FileNotFoundError:
             pass
         try:
-            os.remove('worldgen/rules.csv')
+            os.remove('rules.csv')
         except FileNotFoundError:
             pass
         return
@@ -30,7 +30,7 @@ def main():
             pass
     if '-r' in args:
         try:
-            os.remove('worldgen/rules.csv')
+            os.remove('rules.csv')
         except FileNotFoundError:
             pass
     

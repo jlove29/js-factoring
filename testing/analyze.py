@@ -4,7 +4,7 @@ with open('out.txt', 'r') as infile:
     lines = infile.readlines()
 
 worlds = []
-with open('worldgen/rules.csv', 'r') as incsv:
+with open('rules.csv', 'r') as incsv:
     reader = csv.reader(incsv)
     for line in reader:
         worlds.append(line)
