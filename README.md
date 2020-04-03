@@ -28,7 +28,7 @@ Then, for proposition `p` and set of actions `A`:
             if c = (not true p):
                 continue to next rule r
             if c is a base proposition of the form (true q):
-                continue to next rule r
+                add c to R'
             if c is an action in A:
                 add c to R'
             if c is an action not in A:
