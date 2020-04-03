@@ -113,5 +113,4 @@ var origClauses = [
 var p = 'a';
 
 var result = resolve(origClauses, p);
-console.log(result);
 

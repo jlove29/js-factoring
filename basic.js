@@ -114,13 +114,20 @@ var p = 'a';
 var A = new Set(['i']);
 */
 
+/* New test example */
+var rs = [
+    [ 'a', [ 'a', 'b', 'i' ]],
+    [ 'a', [ 'a', 'xb', 'i' ]]
+];
+var p = 'a';
+var A = new Set(['i']);
 
-/*
+
 var result = run(rs, p, A);
 console.log(result);
-*/
 
 
+/*
 
 // get rules
 var rs = process.argv[2];
@@ -149,4 +156,5 @@ var match = (islatch == result) ? '1\n' : '0\n';
 
 fs.appendFile('out.txt', match, (err) => {});
 
+*/
 
