@@ -1,6 +1,13 @@
 # js-factoring
 
 
+To run:
+
+    node basic.js
+    
+change the rules `rs`, proposition `p`, and action set `A` in basic.js
+
+
 #### Goal: check if proposition state is unchanged once set
 
 \* Updated using the view rewritings method.
