@@ -122,6 +122,10 @@ var rs = [
 var p = 'a';
 var A = new Set(['i']);
 
+console.log('Rules:', rs);
+console.log('p:', p);
+console.log('A:', A);
+
 
 var result = run(rs, p, A);
 console.log(result);
