@@ -103,24 +103,20 @@ var p = 'b';
 var A = new Set(['i', 'j']);
 */
 
-/* Test example */
-/*
-var rs = [
-    [ 'a', [ 'a', 'xb', 'xc', 'i' ] ],
-    [ 'a', [ 'a', 'xb', 'c', 'i' ] ],
-    [ 'a', [ 'a', 'b', 'xc', 'i' ] ]
-];
-var p = 'a';
-var A = new Set(['i']);
-*/
 
 /* New test example */
 var rs = [
-    [ 'a', [ 'a', 'b', 'i' ]],
-    [ 'a', [ 'a', 'xb', 'i' ]]
-];
+        [ 'a', ['i', 'b'] ],
+        [ 'a', ['i', 'xb', 'c'] ],
+        [ 'a', ['i', 'xb', 'xc'] ],
+        [ 'a', ['j', 'b', 'c'] ],
+        [ 'a', ['j', 'b', 'xc'] ],
+        [ 'a', ['j', 'xb'] ]
+    ];
 var p = 'a';
-var A = new Set(['i']);
+var A = new Set(['i', 'j']);
+
+
 
 console.log('Rules:', rs);
 console.log('p:', p);
@@ -130,6 +126,13 @@ console.log('A:', A);
 var result = run(rs, p, A);
 console.log(result);
 
+
+
+
+
+
+
+/* ------- For running testing code only ------- */
 
 /*
 
