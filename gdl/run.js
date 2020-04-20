@@ -1,255 +1,118 @@
 //=============================================================================console.log(this.components);
 // with_propnets.js//==============================================================================
 //==============================================================================
+require('./utils.js')();
+require('./../resolve.js')();
+const fs = require('fs');
 // Initialization//==============================================================================
 var matchid = '';
 var role = '';
 var library = [];
+const {
+    performance
+} = require('perf_hooks');
+var ruleslib = [];
+var roles = [];
+var gamestate = [];
+
 
 //==============================================================================
 // Toplevel//==============================================================================
 function info () {return 'ready'}
 
 
+function exprules(rs,p) {
+    var rules = new Set();
+    for (var r of rs) {
+        var head = r[1][1];
+        if (JSON.stringify(head) == JSON.stringify(p)) {
+            var body = r.slice(2);
+            var strrules = [];
+            for (var i of body) strrules.push(JSON.stringify(i));
+            if (strrules.indexOf(JSON.stringify(['true',p])) != -1 ||
+                        strrules.indexOf(JSON.stringify(['not',['true',p]])) != -1) {
+                rules.add(new Set(body));
+            } else {
+                var total = JSON.stringify(body);
+                var pos = JSON.parse(total);
+                pos.push(['true',p]);
+                rules.add(pos);
+                var neg = JSON.parse(total);
+                neg.push(['not',['true',p]]);
+                rules.add(neg);
+            }
+        }
+    }
+    return rules;
+}
 
 
-/* PLAYER CODE implementing basic MCTS utilizing PropNet-based functions */
 
 function start (id,r,rs,sc,pc) {
-    console.log('Starting program.');
     matchid = id;
-    rs = rs;
-    /* Grounding */
-    library = definemorerules(seq(),rs);
-    var library = definemorerules(seq(),groundrules(library));
-    console.log('Grounded rules.');
-
-    /* Game info */
     role = r;
-    roles = findroles(library);
-    gamestate = findinits(library);
+    library = definemorerules(seq(),rs);
+    if (library.length == 0) return;
+    library = definemorerules(seq(),groundrules(library));
 
-    return 'ready';
+    /* expand bases and actions to include not true */
+    var rbases = findbases(library);
+    var bases = new Set();
+    var strbases = new Set();
+    for (var b of rbases) {
+        var posrule = ['true', b];
+        var negrule = ['not', ['true', b]];
+        bases.add(posrule);
+        bases.add(negrule);
+        strbases.add(JSON.stringify(posrule));
+        strbases.add(JSON.stringify(negrule));
+    }
+    var ractions = library['legal'];
+    var actions = new Set();
+    var stractions = new Set();
+    var negactions = new Set();
+    for (var a of ractions) {
+        actions.add([a[1], a[2]]);
+        stractions.add(['does',[a[1],a[2]]]);
+        negactions.add(JSON.stringify(['not',['does',[a[1],a[2]]]]));
+    }
+
+    var R = [];
+    for (var b of rbases) {
+        var strb = JSON.stringify(['true',b]);
+        var rules = exprules(library['next'],b);
+        for (var rule of rules) {
+            var Rp = new Set();
+            var toContinue = false;
+            for (var c of rule) {
+                var strc = JSON.stringify(c);
+                if (strc == strb) { Rp.add(c); }
+                else if (comp(strc,strb)) { toContinue = true; break; }
+                else if (strbases.has(strc)) { Rp.add(c); }
+                else {
+                    if (stractions.has(strc)) { Rp.add(c); }
+                    else { toContinue = true; break; }
+                }
+            }
+            if (toContinue) continue;
+            R.push(Rp);
+        }
+        R.push(negactions);
+        R = convert(R);
+        var result = resolve(R, p);
+
+        return;
+    }
+
+
+
+    //gamestate = findinits(library);
+
+    return; //'ready';
 }
 
 function play(id, move) {
-    if (!usingPropnets) return regularplay(move);
-    propnet.clear();
-    var currentstate = propnext(move, gamestate, propnet);
-    gamestate = currentstate;
-    var legals = proplegals(role, gamestate, propnet);
-    if (legals.length == 1) return legals[0];
-
-    /* for MCTS */
-    chargesrun = 0;
-    var root = new Node(currentstate, null, null);
-    var action = bestmove(root, role, currentstate);
-    return action;
 }
-
-function bestmove(root, role, state) {
-    begin = performance.now();
-    while (performance.now() < begin + pcms - buf) {
-        var selected = select(root);
-        var score;
-        if (isterminal(selected.state, propnet)) {
-            score = getreward(role, selected.state, propnet);
-        } else {
-            expand(selected, role);
-            score = runcharges(role, selected.state);
-        }
-        backpropagate(selected, score);
-    }
-    var bestaction;
-    var bestscore = -1;
-    var visits = 0; // for printing only
-    for (var c = 0; c < root.children.length; c++) {
-        var opt = root.children[c];
-        if (opt.utility > bestscore) {
-            bestscore = opt.utility;
-            bestaction = opt.action[roles.indexOf(role)];
-            visits = opt.visits;
-        }
-    }
-    console.log("Expected Utility: ", bestscore/visits);
-    console.log("Charges run: ", chargesrun);
-    return bestaction;
-}
-
-function select(root) {
-    if (root.visits == 0 || isterminal(root.state, propnet)) return root;
-    for (var i = 0; i < root.children.length; i++) {
-        if (root.children[i].visits == 0) return root.children[i];
-    }
-    var score = 0;
-    var result = null;
-    for (var j = 0; j < root.children.length; j++) {
-        var newscore = selectfn(root.children[j]);
-        if (newscore > score) {
-            score = newscore;
-            result = root.children[j];
-        }
-    }
-    return select(result);
-}
-function selectfn(node) {
-    return node.utility / node.visits + Math.sqrt(C * Math.log(node.parent.visits) / node.visits);
-}
-function expand(node, role) {
-    var actions = proplegals(role, node.state, propnet);
-    for (var i = 0; i < actions.length; i++) {
-        var jointActions = groupresponses(role, node.state, actions[i], propnet);
-        for (var j = 0; j < jointActions.length; j++) {
-            var newstate = propnext(jointActions[j], node.state, propnet);
-            var newnode = new Node(newstate, node, jointActions[j]);
-            node.children.push(newnode);
-        }
-    }
-}
-function runcharges(role, state) {
-    var total = 0;
-    for (var i = 0; i < numcharges; i++) {
-        total += depthcharge(role, state);
-    }
-    return total/numcharges;
-}
-function depthcharge(role, state) {
-    if (isterminal(state, propnet)) {
-        chargesrun += 1;
-        return getreward(role, state, propnet);
-    }
-    /* if time is up, return */
-    var moves = groupactions(state, propnet);
-    var randommove = moves[Math.floor(Math.random() * moves.length)];
-    var newstate = propnext(randommove, state, propnet);
-    return depthcharge(role, newstate);
-}
-function backpropagate(node, score) {
-    node.visits += 1;
-    node.utility += parseFloat(score);
-    if (node.parent) {
-        backpropagate(node.parent, parseFloat(score));
-    }
-}
-
-class Node {
-    constructor(state, parent, action) {
-        this.state = state;
-        this.parent = parent;
-        this.action = action;
-        this.children = [];
-        this.utility = 0;
-        this.visits = 0;
-        /* cache here? */
-    }
-}
-
-
-
-
-
-/* This is mostly duplicated code that runs basic MCTS if you cannot ground the game in time
- * It relies on additional methods in the epilog.js file */
-function regularplay(move) {
-    if (move != 'nil') gamestate = regsimulate(doesify(roles, move), gamestate, library);
-    var legals = findreglegals(role, gamestate, library);
-    if (legals.length == 1) return legals[0][2];
-    chargesrun = 0;
-    var root = new Node(JSON.parse(JSON.stringify(gamestate)), null, null);
-    var begin = performance.now();
-    var action = regularbestmove(root, role, gamestate);
-    return action;
-}
-function regularbestmove(root, role, state) {
-    begin = performance.now();
-    while (performance.now() < begin + pcms - buf) {
-        var selected = regularselect(root);
-        var score;
-        if (findregterminal(state, library)) { score = findregreward(role, state, library); }
-        else {
-            regularexpand(selected, role);
-            score = regularruncharges(role, selected.state);
-        }
-        backpropagate(selected, score); //here
-    }
-    var bestaction;
-    var bestscore = -1;
-    var visits = 0; // for printing only
-    for (var c = 0; c < root.children.length; c++) {
-        var opt = root.children[c];
-        if (opt.utility > bestscore) {
-            bestscore = opt.utility;
-            bestaction = opt.action[roles.indexOf(role)];
-            visits = opt.visits;
-        }
-    }
-    console.log("Expected Utility: ", bestscore/visits);
-    console.log("Charges run: ", chargesrun);
-    return bestaction[2];
-}
-function regularruncharges(role,state) {
-    var total = 0;
-    for (var i = 0; i < numcharges; i++) total += regulardepthcharge(role, state);
-    return total/numcharges;
-}
-function regulardepthcharge(role, state) {
-    if (findregterminal(state, library)) {
-        chargesrun += 1;
-        return findregreward(role, state, library);
-    }
-    var moves = groupactions(state, propnet);
-    var randommove = moves[Math.floor(Math.random() * moves.length)];
-    var newstate = regsimulate(randommove, state, library);
-    return regulardepthcharge(role, newstate);
-}
-function regularexpand(node, role) {
-    var actions = findreglegals(role, node.state, library);
-    for (var i = 0; i < actions.length; i++) {
-        var jointActions = groupresponses(role, node.state, actions[i], propnet);
-        for (var j = 0; j < jointActions.length; j++) {
-            var newstate = regsimulate(jointActions[j], node.state, library);
-            var newnode = new Node(newstate, node, jointActions[j]);
-            node.children.push(newnode);
-        }
-    }
-}
-function regularselect(root) {
-    if (root.visits == 0 || findregterminal(root.state, library)) return root;
-    for (var i = 0; i < root.children.length; i++) { if (root.children[i].visits == 0) return root.children[i]; }
-    var score = 0;
-    var result = null;
-    for (var j = 0; j < root.children.length; j++) {
-        var newscore = selectfn(root.children[j]);
-        if (newscore > score) {
-            score = newscore;
-            result = root.children[j];
-        }
-    }
-    return regularselect(result);
-}
-function regsimulate (move,state,rules) {return regfindnexts(move.concat(state),rules)}
-function regfindnexts (facts,rules) {return regbasefinds(seq('true','P'),seq('next','P'),facts,rules).sort()}
-function findreglegals(r,s,l) {return regbasefinds(seq('does',r,'X'),seq('legal',r,'X'),s,l)}
-function findregterminal(s,l) { return regbasefindp('terminal',s,l); }
-function findregreward(r,s,l) { return basefindx('R',seq('goal',r,'R'),s,l); }
-
-
-/* A legal player using PropNet */
-function legalplay (id,move) {
-    propnet.clear();
-    var nextstate = propnext(move, gamestate, propnet);
-    gamestate = nextstate;
-    var actions = proplegals(role, gamestate, propnet);
-    var legal = actions[0];
-    return legal;
-}
-
-
-
-
-
-
-
 
 
 function abort (id)  {return 'done'}
@@ -266,12 +129,10 @@ function evaluate (form)
 
 
 function groundrules (library) {
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   var facts = compfacts(library);
   if (facts == null) return null;
   var rules = seq();
   for (var i=0; i<library.length; i++) {
-      if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
       rules = groundrule(library[i],facts,rules);
       if (rules == null) return null;
   }
@@ -285,7 +146,6 @@ function groundrule (rule,facts,rules) {
   return groundsubgoals(2,rule,nil,facts,rules)}
 
 function groundsubgoals (n,rule,al,facts,rules) {
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   if (n>=rule.length) {rules[rules.length] = plug(rule,al); return rules};
   if (!symbolp(rule[n]) && rule[n][0]==='distinct')
      {if (equalp(plug(rule[n][1],al),plug(rule[n][2],al))) {return rules};
@@ -302,15 +162,10 @@ function groundsubgoals (n,rule,al,facts,rules) {
 //------------------------------------------------------------------------------
 
 function compfacts (library) {
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   var bases = compbases(library);
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   var inputs = compinputs(library);
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   var tables = comptables(library);
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   var facts = definemorerules(seq(),bases.concat(inputs));
-  if (!usingPropnets && performance.now() > begin + scms - sbuf) return null;
   for (var i=0; i<tables.length; i++) {
     compview(tables[i],facts,library);
   }
@@ -439,6 +294,7 @@ function findterminalp (facts,rules)
 
 function findreward (role,facts,rules)
  {return groundvalue('goal',role,facts,rules)}
+
 
 //------------------------------------------------------------------------------
 
