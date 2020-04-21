@@ -48,7 +48,7 @@ function exprules(rs,p,actions) {
         var toContinue = false;
         for (var p of r) {
             if (p.indexOf('does') != -1) {
-                rules.push(r);
+                rules.add(r);
                 toContinue = true;
                 break;
             }
@@ -101,7 +101,6 @@ function start (id,r,rs,sc,pc) {
     var R = [];
 
     for (var b of stprops) {
-        console.log("PROP:", b);
         var strb = JSON.stringify(['true',JSON.parse(b)]);
         var rules = exprules(library['next'],b,actions);
         for (var rule of rules) {
@@ -123,8 +122,6 @@ function start (id,r,rs,sc,pc) {
         }
         R.push(negactions);
         R = conv(R);
-        console.log(R);
-        console.log(b);
         var result = resolve(R, b, verbose=true);
         console.log(result);
         console.log('----------');
