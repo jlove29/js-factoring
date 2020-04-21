@@ -77,6 +77,7 @@ function run(rs, p, A) {
     }
     var Ap = negActions(A);
     R.push(Ap);
+    console.log(R);
     var result = resolve(R, p);
     return result;
 }

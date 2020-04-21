@@ -59,10 +59,11 @@ function resolveOldNew(A, B) {
 
 
 
-function resolve(S, p) {
+function resolve(S, p, verbose=false) {
     var O = ldc(S);
     var pA = resolvePairs(O);
     //console.log(pA);
+    var layer = 0;
     while (true) {
         /*
         console.log("O", O);
@@ -78,6 +79,8 @@ function resolve(S, p) {
             if (!contains(O, e)) O.add(e);
         }
         O = [...O];
+        layer += 1;
+        if (verbose) console.log("Layer", layer, "size", O.length);
         var pA = A;
     }
 }
