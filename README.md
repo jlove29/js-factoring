@@ -1,7 +1,16 @@
 # js-factoring
 
+UPDATE: GDL-compatible version in the gdl folder. 
 
-To run:
+To run on port 9147:
+
+    cd gdl
+    node loader.js
+
+
+------
+
+To run basic version:
 
     node basic.js
     
