@@ -14,7 +14,8 @@ To run the disjunction code:
 
     node disj.js
 
-You can change the propositions in the disjunction in the variable `p`. It also works with a single proposition in the disjunction, i.e. `p=['a']`.
+You can change the propositions in the disjunction in the variable `p` - (`p = ['a','b']` &rarr; a &#8744; b).
+It also works with a single proposition in the disjunction, i.e. `p=['a']`.
 
 
 ------
