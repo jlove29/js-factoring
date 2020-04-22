@@ -110,10 +110,18 @@ var origClauses = [
 ];
 */
 var origClauses = [
-    new Set ([ 'a', 'xb', 'c', 'i' ]),
-    new Set ([ 'a', 'xb', 'i', 'b' ])
+    new Set ([ 'b', 'xa', 'i' ]),
+    new Set ([ 'a', 'xb', 'i' ]),
+    new Set ([ 'a', 'xa', 'j' ]),
+    new Set ([ 'a', 'b', 'j' ]),
+    new Set ([ 'xa', 'b', 'j' ]),
+    new Set ([ 'xa', 'xb', 'j' ]),
+    new Set ([ 'b', 'a', 'j' ]),
+    new Set ([ 'b', 'xa', 'j' ]),
+    new Set ([ 'xi', 'xj' ]),
 ];
-var p = 'a';
+var p = 'b';
 
-var result = resolve(origClauses, p);
+var result = resolve(origClauses, p, verbose=true);
+console.log(result);
 
