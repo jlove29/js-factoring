@@ -103,25 +103,21 @@ var p = 'a';
 
 /*
 var origClauses = [
-    new Set ([ 'a', 'xb', 'xc', 'i' ]),
-    new Set ([ 'a', 'xb', 'c', 'i' ]),
-    new Set ([ 'a', 'b', 'xc', 'i' ]),
-    new Set ([ 'xi' ])
-];
-*/
-var origClauses = [
-    new Set ([ 'b', 'xa', 'i' ]),
-    new Set ([ 'a', 'xb', 'i' ]),
-    new Set ([ 'a', 'xa', 'j' ]),
-    new Set ([ 'a', 'b', 'j' ]),
-    new Set ([ 'xa', 'b', 'j' ]),
-    new Set ([ 'xa', 'xb', 'j' ]),
-    new Set ([ 'b', 'a', 'j' ]),
-    new Set ([ 'b', 'xa', 'j' ]),
-    new Set ([ 'xi', 'xj' ]),
+  new Set ( [ 'b', 'xa', 'i' ] ),
+  new Set ( [ 'a', 'xb', 'i' ] ),
+  new Set ( [ 'j', 'a', 'b' ] ),
+  new Set ( [ 'j', 'a', 'xb' ] ),
+  new Set ( [ 'j', 'xa', 'b' ] ),
+  new Set ( [ 'j', 'xa', 'xb' ] ),
+  new Set ( [ 'b', 'j', 'a' ] ),
+  new Set ( [ 'b', 'j', 'xa' ] ),
+  new Set ( [ 'b', 'a', 'i' ] ),
+  new Set ( [ 'b', 'a', 'i' ] ),
+  new Set ( [ 'xi', 'xj' ] )
 ];
 var p = 'b';
 
 var result = resolve(origClauses, p, verbose=true);
 console.log(result);
+*/
 

@@ -9,21 +9,28 @@ var actions = new Set([...ractions]);
 for (var a of ractions) actions.add('x' + a);
 
 
-function getrules(R, p) {
-    var rules = new Set();
-    for (var i = 0; i < rs.length; i++) {
-        if (rs[i][0] == p) {
-            if (rs[i][1].includes(p)) rules.add(new Set(rs[i][1]));
-            else {
-                var newRuleA = dc(rs[i][1]);
-                newRuleA.push(p);
-                rules.add(new Set(newRuleA));
-                var newRuleB = dc(rs[i][1]);
-                newRuleB.push('x' + p);
-                rules.add(new Set(newRuleB));
+function getrules(R, pl) {
+    var Rp = R;
+    for (var p of pl) {
+        var rules = [];
+        for (var i = 0; i < Rp.length; i++) {
+            if (pl.indexOf(Rp[i][0]) != -1) {
+                if (Rp[i][1].includes(p)) rules.push(Rp[i]);
+                else if (Rp[i][1].includes('x'+p)) rules.push(Rp[i]);
+                else {
+                    var newRuleA = dc(Rp[i]);
+                    newRuleA[1].push(p);
+                    rules.push(newRuleA);
+                    var newRuleB = dc(Rp[i]);
+                    newRuleB[1].push('x' + p);
+                    rules.push(newRuleB);
+                }
             }
         }
+        Rp = rules;
     }
+    rules = new Set();
+    for (var r of Rp) rules.add(r[1])
     return rules;
 }
 
@@ -52,18 +59,13 @@ function run(rs, p, A) {
         var Rp = new Set();
         var toContinue = false;
         for (var c of rule) {
-            if (c == p) Rp.add(c);          // c = (true p)
-            else if (complement(c, p)) {   // c = (not true p)
+            /* no longer need this
+            if (p.indexOf(c) != -1) Rp.add(c);
+            else if (complement(c, p)) {
                 toContinue = true;
                 break;
-            }
-            else if (istype(c, 'base')) {        // c = (true q)
-                /*
-                toContinue = true;
-                break;
-                */
-                Rp.add(c);
-            }
+            }*/
+            if (istype(c, 'base')) Rp.add(c);
             else if (istype(c, 'action')) {      // c = (does i)
                 if (A.has(c)) Rp.add(c);
                 else {
@@ -77,22 +79,24 @@ function run(rs, p, A) {
     }
     var Ap = negActions(A);
     R.push(Ap);
-    console.log(R);
-    var result = resolve(R, p);
-    return result;
+    for (var c of p) {
+        var result = resolve(R, c);
+        if (!result) return false;
+    }
+    return true;
 }
 
 
-/* New test example */
+/* Dealing with pVq */
 var rs = [
-        [ 'a', ['i', 'b'] ],
-        [ 'a', ['i', 'xb', 'c'] ],
-        [ 'a', ['i', 'xb', 'xc'] ],
-        [ 'a', ['j', 'b', 'c'] ],
-        [ 'a', ['j', 'b', 'xc'] ],
-        [ 'a', ['j', 'xb'] ]
-    ];
-var p = 'a';
+    [ 'a', ['b', 'xa', 'i'] ],
+    [ 'b', ['a', 'xb', 'i'] ],
+    [ 'a', ['j'] ],
+    [ 'b', ['b', 'j'] ],
+    [ 'a', ['b', 'a', 'i'] ],
+    [ 'b', ['b', 'a', 'i'] ],
+];
+var p = ['a', 'b'];
 var A = new Set(['i', 'j']);
 
 
