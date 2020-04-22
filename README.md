@@ -1,11 +1,20 @@
 # js-factoring
 
-UPDATE: GDL-compatible version in the gdl folder. 
+#### UPDATE: GDL-compatible version in the gdl folder. 
 
 To run on port 9147:
 
     cd gdl
     node loader.js
+
+
+#### UPDATE: compatible with disjunctions (p V q)
+
+To run the disjunction code:
+
+    node disj.js
+
+You can change the propositions in the disjunction in the variable `p`.
 
 
 ------
