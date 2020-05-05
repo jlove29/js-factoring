@@ -7,6 +7,12 @@ To run on port 9147:
     cd gdl
     node loader.js
 
+Note: the latches.js file in the gdl folder runs the latch detection code. Call it with
+
+    library = ... /* grounded rules of the game */
+    bases = findbases(library); /* list of base propositions to evaluate */
+    latches = findlatches(library, bases);
+
 
 #### UPDATE: compatible with disjunctions (p V q)
 
