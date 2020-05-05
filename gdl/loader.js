@@ -9,7 +9,7 @@
 // Requires this file, epilog.js (in this folder), and player file
 //------------------------------------------------------------------------------
 
-var playerfile = 'run.js';
+var playerfile = 'player.js';
 var port = (process.argv.length>2) ? process.argv[3] : 9147;
 
 var http = require("http");
