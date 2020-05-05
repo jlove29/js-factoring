@@ -27,6 +27,14 @@ function getrules(R, p) {
     return rules;
 }
 
+/*
+function getrules_noexp(R, p) {
+    var rules = new Set();
+    for (var i = 0; i < rs.length; i++) rules.add(new Set(rs[i][1]));
+    return rules;
+}
+*/
+
 function istype(p, t) {
     if (t == 'action') return actions.has(p);
     if (t == 'base') return bases.has(p);
