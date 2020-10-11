@@ -91,7 +91,7 @@ function run(rs, p, A) {
 }
 
 
-/* New test example */
+/* ------- Read from variable ------- */
 var rs = [
         [ 'a', ['i', 'b'] ],
         [ 'a', ['i', 'xb', 'c'] ],
@@ -103,11 +103,9 @@ var rs = [
 var p = 'a';
 var A = new Set(['i', 'j']);
 
-
 console.log('Rules:', rs);
 console.log('p:', p);
 console.log('A:', A);
-
 
 var result = run(rs, p, A);
 console.log(result);

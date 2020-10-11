@@ -17,11 +17,18 @@ function convert(R) {
             }
             if (rule[0] == 'does') strrule += JSON.stringify(rule.slice(1));
             if (rule[0] == 'true') strrule += rule[1];
-            pSet.add(strrule);
+            if (strrule != '') pSet.add(strrule);
         }
         rs.push(pSet);
     }
     return rs;
+}
+
+function convertp(p) {
+    p = JSON.parse(p);
+    var strrule = '';
+    strrule += p;
+    return strrule;
 }
 
 function distinct(c) { return (c[0] == 'distinct' && c[1] != c[2]); }
@@ -31,5 +38,6 @@ function distinct(c) { return (c[0] == 'distinct' && c[1] != c[2]); }
 module.exports = function () {
     this.comp = complement;
     this.conv = convert;
+    this.convp = convertp;
     this.dist = distinct;
 };

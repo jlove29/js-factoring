@@ -10,15 +10,15 @@ function exprules(rs,p,actions) {
             var strrules = [];
             for (var i of body) strrules.push(JSON.stringify(i));
             if (strrules.indexOf(JSON.stringify(['true',JSON.parse(p)])) != -1 ||
-                        strrules.indexOf(JSON.stringify(['not',['true',JSON.parse(p)]])) != -1) {
+                strrules.indexOf(JSON.stringify(['not',['true',JSON.parse(p)]])) != -1) {
                 rules_a.add(new Set(body));
             } else {
                 var total = JSON.stringify(body);
                 var pos = JSON.parse(total);
-                pos.push(['true',p]);
+                pos.push(['true',JSON.parse(p)]);
                 rules_a.add(pos);
                 var neg = JSON.parse(total);
-                neg.push(['not',['true',p]]);
+                neg.push(['not',['true',JSON.parse(p)]]);
                 rules_a.add(neg);
             }
         }
@@ -59,21 +59,20 @@ function run(library, rbases) {
     var ractions = library['legal'];
     var actions = new Set();
     var stractions = new Set();
-    var negactions = new Set();
+    var negactions = [];
     for (var a of ractions) {
         /* TODO: fix to generalize - just meant to catch 1p games */
         if (a[1] != 'robot') a = a[1];
         actions.add(['does',a[1], a[2]]);
         stractions.add(JSON.stringify(['does',a[1],a[2]]));
-        negactions.add(['not',['does',a[1],a[2]]]);
+        negactions.push(new Set(['not',['does',a[1],a[2]]]));
     }
-
-    var R = [];
 
     console.log('finding latches...');
     console.log('----------');
     var latches = [];
     for (var b of stprops) {
+        var R = [];
         var strb = JSON.stringify(['true',JSON.parse(b)]);
         var rules = exprules(library['next'],b,actions);
         for (var rule of rules) {
@@ -93,8 +92,9 @@ function run(library, rbases) {
             if (toContinue) continue;
             R.push(Rp);
         }
-        R.push(negactions);
+        R = R.concat(negactions);
         R = conv(R);
+        b = convp(b);
         var result = resolve(R, b, verbose=true);
         if (result) latches.push(b);
         console.log(result);

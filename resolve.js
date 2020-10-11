@@ -62,14 +62,8 @@ function resolveOldNew(A, B) {
 function resolve(S, p, verbose=false) {
     var O = ldc(S);
     var pA = resolvePairs(O);
-    //console.log(pA);
     var layer = 0;
     while (true) {
-        /*
-        console.log("O", O);
-        console.log("P", pA);
-        console.log("---");
-        */
         if (stopCond(pA, p)) return true;
         if (pA.length == 0) return false;
         var A = resolveOldNew(O, pA);
