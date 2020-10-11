@@ -1,4 +1,4 @@
-require('./utils.js')();
+require('./utils.js');
 
 function stopCond(S, p) {
     for (var s of S) {
@@ -81,7 +81,7 @@ function resolve(S, p, verbose=false) {
 
 module.exports = function() {
     this.resolve = resolve;
-};
+}
 
 /*
 var A = new Set([ 'a', 'b', 'c' ]);
