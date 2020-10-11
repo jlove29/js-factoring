@@ -1,6 +1,6 @@
 # js-factoring
 
-### UPDATE (10/11): GDL-compatible version ALMOST working with reading GDL directly from file.
+#### UPDATE (10/11): GDL-compatible version ALMOST working with reading GDL directly from file.
 
 There is still an issue with the game grounding.
 
