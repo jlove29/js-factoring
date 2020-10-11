@@ -1,5 +1,9 @@
 # js-factoring
 
+### UPDATE (10/11): GDL-compatible version ALMOST working with reading GDL directly from file.
+
+There is still an issue with the game grounding.
+
 #### UPDATE: GDL-compatible version in the gdl folder. 
 
 To run on port 9147:
