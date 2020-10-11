@@ -1,4 +1,7 @@
 const fs = require('fs');
+eval(fs.readFileSync('resolve.js') + '');
+eval(fs.readFileSync('epilog.js') + '');
+eval(fs.readFileSync('grounder.js') + '');
 
 
 function exprules(rs,p,actions) {
@@ -107,6 +110,17 @@ module.exports = function () {
     this.findlatches = run;
 };
 
+if (require.main === module) {
+    var rs = fs.readFileSync('./../../basic-games/tttCol.txt', {encoding: 'utf8'});
+    rs = rs.split('\n');
+    var rstr = '(';
+    for (x of rs) { if (x[0] != ';') rstr += x; }
+    rstr += ')';
+    var rs = readkif(rstr);
+    var library = definemorerules(seq(), rs);
+    var rbases = findbases(library);
+    run(library, rbases);
+}
 
 
 

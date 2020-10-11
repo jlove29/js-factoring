@@ -2,61 +2,13 @@
 // with_propnets.js//==============================================================================
 //==============================================================================
 require('./utils.js')();
-require('./resolve.js')();
-require('./latches.js')();
 const fs = require('fs');
-eval(fs.readFileSync('grounder.js'), '');
-
 // Initialization//==============================================================================
-var matchid = '';
-var role = '';
-var library = [];
-const {
-    performance
-} = require('perf_hooks');
-var ruleslib = [];
-var roles = [];
-var gamestate = [];
-
-
-//==============================================================================
-// Toplevel//==============================================================================
-function info () {return 'ready'}
-
-
-function start (id,r,rs,sc,pc) {
-    matchid = id;
-    role = r;
-    library = definemorerules(seq(),rs);
-    if (library.length == 0) return;
-    library = definemorerules(seq(),groundrules(library));
-    var bases = findbases(library);
-    var latches = findlatches(library, bases);
-
-
-    //gamestate = findinits(library);
-
-    return; //'ready';
-}
-
-function play(id, move) {
-}
-
-
-function abort (id)  {return 'done'}
-
-function stop (id,move)  {return 'done'}
-
-function evaluate (form)
- {return eval(stripquotes(form)).toString()}
-
-
 
 //==============================================================================
 // grounder//==============================================================================
 
 
-/*
 function groundrules (library) {
   var facts = compfacts(library);
   if (facts == null) return null;
@@ -198,7 +150,7 @@ function findroles (rules)
  {return basefinds('R',seq('role','R'),seq(),rules)}
 
 function findbases (rules)
- {return basefinds('P',seq('base','P'),seq(),rules)}
+ { return basefinds('P',seq('base','P'),seq(),rules)}
 
 function findinputs (role,rules)
  {return basefinds('A',seq('input',role,'A'),seq(),rules)}
@@ -352,7 +304,6 @@ function groundvalues (rel,obj,facts,rules)
 indexing = true;
 dataindexing = false;
 ruleindexing = true;
-*/
 
 //==============================================================================
 // End//==============================================================================

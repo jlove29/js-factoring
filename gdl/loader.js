@@ -18,6 +18,7 @@ var querystring = require("querystring");
 var fs = require('fs');
 eval(fs.readFileSync('epilog.js') + '');
 eval(fs.readFileSync(playerfile) + '');
+eval(fs.readFileSync('grounder.js') + '');
 
 start(0, 'red', {}, 20, 20);
 
@@ -52,8 +53,8 @@ response.writeHead(200,
   request.addListener("data",function (chunk) {postData += chunk});
   request.addListener("end",function () {route(pathname,response,postData)})}}
 
-function route (pathname,response,postData)
- {var request = readkif(postData);
+function route (pathname,response,postData) {
+  var request = readkif(postData);
   var result = eval(request[0]).apply(null,request.slice(1));
   response.write(printit(result));
   response.end()}
